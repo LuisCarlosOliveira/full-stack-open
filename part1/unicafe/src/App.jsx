@@ -5,26 +5,35 @@ const Button = ({ handleClick, text }) => {
   return <button onClick={handleClick}>{text}</button>;
 };
 
-// Define the StatisticLine component outside the App component
+// Update the StatisticLine component to render as a table row
 const StatisticLine = ({ text, value }) => {
   return (
-    <p>
-      {text} {value}
-    </p>
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
   );
 };
 
-// Update the Statistics component to use the StatisticLine component
+// Update the Statistics component to use an HTML table
 const Statistics = ({ good, neutral, bad, total, average, positivePercentage }) => {
   return (
     <div>
       <h1>statistics</h1>
-      <StatisticLine text="good" value={good} />
-      <StatisticLine text="neutral" value={neutral} />
-      <StatisticLine text="bad" value={bad} />
-      <StatisticLine text="all" value={total} />
-      <StatisticLine text="average" value={average.toFixed(2)} />
-      <StatisticLine text="positive" value={`${positivePercentage.toFixed(2)} %`} />
+      {total > 0 ? (
+        <table>
+          <tbody>
+            <StatisticLine text="good" value={good} />
+            <StatisticLine text="neutral" value={neutral} />
+            <StatisticLine text="bad" value={bad} />
+            <StatisticLine text="all" value={total} />
+            <StatisticLine text="average" value={average.toFixed(2)} />
+            <StatisticLine text="positive" value={`${positivePercentage.toFixed(2)} %`} />
+          </tbody>
+        </table>
+      ) : (
+        <p>No feedback given</p>
+      )}
     </div>
   );
 };
