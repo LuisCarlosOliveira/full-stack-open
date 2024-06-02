@@ -1,16 +1,30 @@
 import { useState } from 'react';
 
-// Define the Statistics component outside the App component
+// Define the Button component outside the App component
+const Button = ({ handleClick, text }) => {
+  return <button onClick={handleClick}>{text}</button>;
+};
+
+// Define the StatisticLine component outside the App component
+const StatisticLine = ({ text, value }) => {
+  return (
+    <p>
+      {text} {value}
+    </p>
+  );
+};
+
+// Update the Statistics component to use the StatisticLine component
 const Statistics = ({ good, neutral, bad, total, average, positivePercentage }) => {
   return (
     <div>
       <h1>statistics</h1>
-      <p>good {good}</p>
-      <p>neutral {neutral}</p>
-      <p>bad {bad}</p>
-      <p>all {total}</p>
-      <p>average {average.toFixed(2)}</p>
-      <p>positive {positivePercentage.toFixed(2)} %</p>
+      <StatisticLine text="good" value={good} />
+      <StatisticLine text="neutral" value={neutral} />
+      <StatisticLine text="bad" value={bad} />
+      <StatisticLine text="all" value={total} />
+      <StatisticLine text="average" value={average.toFixed(2)} />
+      <StatisticLine text="positive" value={`${positivePercentage.toFixed(2)} %`} />
     </div>
   );
 };
@@ -56,9 +70,9 @@ const App = () => {
   return (
     <div>
       <h1>give feedback</h1>
-      <button onClick={handleGoodClick}>good</button>
-      <button onClick={handleNeutralClick}>neutral</button>
-      <button onClick={handleBadClick}>bad</button>
+      <Button handleClick={handleGoodClick} text="good" />
+      <Button handleClick={handleNeutralClick} text="neutral" />
+      <Button handleClick={handleBadClick} text="bad" />
       {total > 0 ? (
         <Statistics 
           good={good} 
