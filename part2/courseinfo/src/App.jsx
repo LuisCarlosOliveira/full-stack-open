@@ -19,6 +19,11 @@ const App = () => {
         name: 'State of a component',
         exercises: 14,
         id: 3
+      },
+      {
+        name: 'Redux',
+        exercises: 11,
+        id: 4
       }
     ]
   };
@@ -32,9 +37,16 @@ const Course = ({ course }) => {
     <div>
       <Header courseName={course.name} />
       <Content parts={course.parts} />
+      <Total total ={course.parts} />
     </div>
   );
 };
+
+const Total = ({total}) => {
+  const totalExercises = total[0].exercises + total[1].exercises + total[2].exercises + total[3].exercises;
+  return <p><strong>Number of exercises {totalExercises}</strong></p>;
+}
+
 
 // Define the Header component
 const Header = ({ courseName }) => {
