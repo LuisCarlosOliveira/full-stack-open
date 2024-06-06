@@ -41,9 +41,14 @@ const Course = ({ course }) => {
     </div>
   );
 };
-
+/*
 const Total = ({total}) => {
   const totalExercises = total[0].exercises + total[1].exercises + total[2].exercises + total[3].exercises;
+  return <p><strong>Number of exercises {totalExercises}</strong></p>;
+}
+*/
+const Total = ({total}) => {
+  const totalExercises = total.reduce((sum, part) => sum + part.exercises, 0);
   return <p><strong>Number of exercises {totalExercises}</strong></p>;
 }
 
