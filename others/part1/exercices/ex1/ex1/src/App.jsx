@@ -3,10 +3,18 @@ import Salute from './components/Salute';
 import HobbiesList from './components/HobbiesList';
 import FriendList from './components/FriendsList';
 import Profile from './components/Profile';
+import Counter from './components/Counter';
+import ToggleMessage from "./components/ToggleMessage";
+import ClickCounter from "./components/ClickCounter";
+import DynamicStepCounter from "./components/DynamicStepCounter";
 
 function App() {
   return (
     <>
+      <DynamicStepCounter />
+      <ClickCounter />
+      <Counter />
+      <ToggleMessage />
       <Salute salute="Oliveira" />
       <HobbiesList hobbies={['Playing', 'Reading', 'Coding']} climbing="I Like to Climb" />
       <FriendList friends={['A', 'B', 'C']} fromWhere="Tokyo" friends2={['D', 'F', 'G']} fromWhere2="Porto" />
