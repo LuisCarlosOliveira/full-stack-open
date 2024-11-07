@@ -11,10 +11,12 @@ import FormSubmission from "./components/FormSubmission";
 import VoteCounter from "./components/VoteCounter";
 import ThemeToggle from "./components/ThemeToggle";
 import LiveText from "./components/LiveText";
+import WordCounter from "./components/WordCounter";
 
 function App() {
   return (
     <>
+      <WordCounter />
       <LiveText />
       <ThemeToggle />
       <VoteCounter />
