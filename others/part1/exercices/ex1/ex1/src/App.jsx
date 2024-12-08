@@ -12,10 +12,16 @@ import VoteCounter from "./components/VoteCounter";
 import ThemeToggle from "./components/ThemeToggle";
 import LiveText from "./components/LiveText";
 import WordCounter from "./components/WordCounter";
+import TaskList from "./components/TaskList";
+import ProductList from "./components/ProductList";
+import NoteList from "./components/NoteList";
 
 function App() {
   return (
     <>
+      <NoteList />
+      <ProductList />
+      <TaskList />
       <WordCounter />
       <LiveText />
       <ThemeToggle />
