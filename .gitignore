@@ -1,1 +1,19 @@
+# Dependências
 node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistemas operacionais
+.DS_Store
+Thumbs.db
+
+# Configurações locais
+.env
+nodemon.json
+
+# Compilados/Builds
+dist/
+build/

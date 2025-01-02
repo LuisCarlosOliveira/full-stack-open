@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-// Função centralizada para cálculos
+// Define a function to calculate the result based on the operation
 const calculate = (num1, num2, operation) => {
     switch (operation) {
         case 'sum':
@@ -18,6 +18,7 @@ const calculate = (num1, num2, operation) => {
     }
 };
 
+// Define a route to handle the operation
 app.get('/:operation/:num1/:num2', (req, res) => {
     const { operation, num1, num2 } = req.params;
     const n1 = Number(num1);
