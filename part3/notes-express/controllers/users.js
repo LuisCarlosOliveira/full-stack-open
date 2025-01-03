@@ -22,6 +22,11 @@ router.post("/", async (req, res, next) => {
       return res.status(400).json({ error: "Name / Email missing" });
     }
 
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already in use" });
+    }
+
     const user = new User({ name, email });
     const savedUser = await user.save();
     res.status(201).json(savedUser);
@@ -48,6 +53,17 @@ router.get("/:id", async (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   try {
     const { name, email } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name / Email missing" });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser && existingUser.id !== req.params.id) {
+      return res
+        .status(400)
+        .json({ error: "Email already in use by another user" });
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
