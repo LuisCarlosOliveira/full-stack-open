@@ -1,25 +1,26 @@
-const express = require("express");
+const express = require('express');
+
 const router = express.Router();
 
 let notes = [
   {
-    id: "1",
-    content: "HTML is easy",
+    id: '1',
+    content: 'HTML is easy',
     important: true,
   },
   {
-    id: "2",
-    content: "Browser can execute only JavaScript",
+    id: '2',
+    content: 'Browser can execute only JavaScript',
     important: false,
   },
   {
-    id: "3",
-    content: "GET and POST are the most important methods of HTTP protocol",
+    id: '3',
+    content: 'GET and POST are the most important methods of HTTP protocol',
     important: true,
   },
 ];
 
-router.get("/", (req, res, next) => {
+router.get('/', (req, res, next) => {
   try {
     res.json(notes);
   } catch (err) {
@@ -27,19 +28,18 @@ router.get("/", (req, res, next) => {
   }
 });
 
-
-router.post("/", (req, res, next) => {
+router.post('/', (req, res, next) => {
   try {
-    const body = req.body;
+    const { body } = req;
 
     if (!body.content) {
-      return res.status(400).json({ error: "Content missing" });
+      return res.status(400).json({ error: 'Content missing' });
     }
 
     if (body.content.length < 5) {
       return res
         .status(400)
-        .json({ error: "Content must be at least 5 characters long" });
+        .json({ error: 'Content must be at least 5 characters long' });
     }
 
     const note = {
@@ -55,14 +55,14 @@ router.post("/", (req, res, next) => {
   }
 });
 
-router.put("/:id", (req, res, next) => {
+router.put('/:id', (req, res, next) => {
   try {
-    const id = req.params.id;
-    const body = req.body;
+    const { id } = req.params;
+    const { body } = req;
 
     const noteIndex = notes.findIndex((note) => note.id === id);
     if (noteIndex === -1) {
-      return res.status(404).send({ error: "Note not found" });
+      return res.status(404).send({ error: 'Note not found' });
     }
 
     const updatedNote = { ...notes[noteIndex], ...body };
@@ -74,9 +74,9 @@ router.put("/:id", (req, res, next) => {
   }
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete('/:id', (req, res, next) => {
   try {
-    const id = req.params.id;
+    const { id } = req.params;
     notes = notes.filter((note) => note.id !== id);
     res.status(204).end();
   } catch (err) {
