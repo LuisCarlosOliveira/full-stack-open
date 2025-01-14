@@ -1,25 +1,41 @@
-import { useState, useEffect } from 'react';
-import notesService from './services/notes';
-//import usersService from './services/users'
-import './App.css';
+import { useState, useEffect } from "react";
+import notesService from "./services/notes";
+import usersService from "./services/users";
+import "./App.css";
 
 const App = () => {
   const [notes, setNotes] = useState([]);
   const [importantNotes, setImportantNotes] = useState([]);
-  const [newNote, setNewNote] = useState('');
-  const [searchId, setSearchId] = useState('');
+  const [newNote, setNewNote] = useState("");
+  const [searchId, setSearchId] = useState("");
   const [noteById, setNoteById] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    usersService
+      .getAll()
+      .then((initialUsers) => {
+        setUsers(initialUsers);
+      })
+      .catch((error) => {
+        console.error("Error getting all users:", error);
+        setErrorMessage("It was not possible get the users. Try again later.");
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+      });
+  }, []);
 
   useEffect(() => {
     notesService
       .getAll()
-      .then(initialNotes => {
+      .then((initialNotes) => {
         setNotes(initialNotes);
       })
-      .catch(error => {
-        console.error('Erro ao buscar todas as notas:', error);
-        setErrorMessage('Não foi possível buscar as notas. Tente novamente mais tarde.');
+      .catch((error) => {
+        console.error("Error getting all notes:", error);
+        setErrorMessage("It was not possible get the notes. Try again later.");
         setTimeout(() => {
           setErrorMessage(null);
         }, 5000);
@@ -27,12 +43,14 @@ const App = () => {
 
     notesService
       .getImportants()
-      .then(initialImportantNotes => {
+      .then((initialImportantNotes) => {
         setImportantNotes(initialImportantNotes);
       })
-      .catch(error => {
-        console.error('Erro ao buscar notas importantes:', error);
-        setErrorMessage('Não foi possível buscar as notas importantes. Tente novamente mais tarde.');
+      .catch((error) => {
+        console.error("Erro ao buscar notas importantes:", error);
+        setErrorMessage(
+          "Não foi possível buscar as notas importantes. Tente novamente mais tarde."
+        );
         setTimeout(() => {
           setErrorMessage(null);
         }, 5000);
@@ -48,16 +66,18 @@ const App = () => {
 
     notesService
       .create(noteObject)
-      .then(returnedNote => {
+      .then((returnedNote) => {
         setNotes(notes.concat(returnedNote));
         if (returnedNote.important) {
           setImportantNotes(importantNotes.concat(returnedNote));
         }
-        setNewNote('');
+        setNewNote("");
       })
-      .catch(error => {
-        console.error('Erro ao adicionar nota:', error);
-        setErrorMessage('Não foi possível adicionar a nota. Verifique os dados e tente novamente.');
+      .catch((error) => {
+        console.error("Erro ao adicionar nota:", error);
+        setErrorMessage(
+          "Não foi possível adicionar a nota. Verifique os dados e tente novamente."
+        );
         setTimeout(() => {
           setErrorMessage(null);
         }, 5000);
@@ -65,16 +85,18 @@ const App = () => {
   };
 
   const removeNote = (id) => {
-    if (window.confirm('Tem certeza que deseja remover esta nota?')) {
+    if (window.confirm("Tem certeza que deseja remover esta nota?")) {
       notesService
         .remove(id)
         .then(() => {
-          setNotes(notes.filter(note => note.id !== id));
-          setImportantNotes(importantNotes.filter(note => note.id !== id));
+          setNotes(notes.filter((note) => note.id !== id));
+          setImportantNotes(importantNotes.filter((note) => note.id !== id));
         })
-        .catch(error => {
-          console.error('Erro ao remover nota:', error);
-          setErrorMessage('Não foi possível remover a nota. Tente novamente mais tarde.');
+        .catch((error) => {
+          console.error("Erro ao remover nota:", error);
+          setErrorMessage(
+            "Não foi possível remover a nota. Tente novamente mais tarde."
+          );
           setTimeout(() => {
             setErrorMessage(null);
           }, 5000);
@@ -84,7 +106,7 @@ const App = () => {
 
   const getNoteById = () => {
     if (!searchId) {
-      setErrorMessage('Por favor, insira um ID válido.');
+      setErrorMessage("Por favor, insira um ID válido.");
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -93,12 +115,14 @@ const App = () => {
 
     notesService
       .getById(searchId)
-      .then(note => {
+      .then((note) => {
         setNoteById(note);
       })
-      .catch(error => {
-        console.error('Erro ao buscar a nota por ID:', error);
-        setErrorMessage('Não foi possível buscar a nota. Verifique o ID e tente novamente.');
+      .catch((error) => {
+        console.error("Erro ao buscar a nota por ID:", error);
+        setErrorMessage(
+          "Não foi possível buscar a nota. Verifique o ID e tente novamente."
+        );
         setTimeout(() => {
           setErrorMessage(null);
         }, 5000);
@@ -115,47 +139,62 @@ const App = () => {
 
   return (
     <div>
+      <h1>Users Management</h1>
+      <h2>All Users</h2>
+      <ul>
+        {users.map((user) => (
+          <li key={user.id}>
+            {user.name} - {user.email}
+          </li>
+        ))}
+      </ul>
+
       <h1>Notes Management</h1>
 
       {errorMessage && <div className="error">{errorMessage}</div>}
 
       <form onSubmit={addNote}>
-        <input 
-          type="text" 
-          value={newNote} 
-          onChange={handleNoteChange} 
-          placeholder="New Note" 
+        <input
+          type="text"
+          value={newNote}
+          onChange={handleNoteChange}
+          placeholder="New Note"
         />
         <button type="submit">Add</button>
       </form>
 
       <h2>All Notes</h2>
       <ul>
-        {notes.map(note => 
+        {notes.map((note) => (
           <li key={note.id}>
-            {note.content} {note.important ? <strong>(Important)</strong> : ''}
+            {note.content} {note.important ? <strong>(Important)</strong> : ""}
             <button onClick={() => removeNote(note.id)}>Remove</button>
           </li>
-        )}
+        ))}
       </ul>
 
       <h2>Important Notes</h2>
       <ul>
-        {importantNotes.map(note => 
+        {importantNotes.map((note) => (
           <li key={note.id}>
             {note.content}
             <button onClick={() => removeNote(note.id)}>Remove</button>
           </li>
-        )}
+        ))}
       </ul>
 
       <h2>Get Note by ID</h2>
-      <form onSubmit={(event) => { event.preventDefault(); getNoteById(); }}>
-        <input 
-          type="text" 
-          value={searchId} 
-          onChange={handleSearchIdChange} 
-          placeholder="Insert note ID" 
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          getNoteById();
+        }}
+      >
+        <input
+          type="text"
+          value={searchId}
+          onChange={handleSearchIdChange}
+          placeholder="Insert note ID"
         />
         <button type="submit">Find</button>
       </form>
@@ -163,7 +202,10 @@ const App = () => {
       {noteById && (
         <div>
           <h3>Note Founded:</h3>
-          <p>{noteById.content} {noteById.important ? <strong>(Important)</strong> : ''}</p>
+          <p>
+            {noteById.content}{" "}
+            {noteById.important ? <strong>(Important)</strong> : ""}
+          </p>
         </div>
       )}
     </div>
