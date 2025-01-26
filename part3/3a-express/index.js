@@ -28,15 +28,53 @@ app.get("/api/notes", (request, response) => {
 });
 
 app.get("/api/notes/:id", (request, response) => {
-  const id = request.params.id;
-  const note = notes.find((note) => note.id === id);
+    const { id } = request.params; //Destructuring 
+    
+    if (!id) {
+      return response.status(400).json({
+        error: 'Missing note id',
+        status: 400
+      });
+    }
+  
+    const note = notes.find(note => note.id === id);
+    
+    if (!note) {
+      return response.status(404).json({
+        error: 'Note not found',
+        requestedId: id,
+        status: 404
+      });
+    }
+  
+    return response.json(note);
+  });
 
-  if (note) {
-    response.json(note);
-  } else {
-    response.status(404).end();
-  }
-});
+app.delete('/api/notes/:id', (request, response) => {
+    const { id } = request.params; //Destructuring 
+    
+    const noteToDelete = notes.find(note => note.id === id);
+    if (!noteToDelete) {
+      return response.status(404).json({ 
+        error: 'Note not found',
+        requestedId: id 
+      });
+    }
+  
+    const initialLength = notes.length;
+    notes = notes.filter(note => note.id !== id);
+  
+    if (notes.length === initialLength) {
+      return response.status(500).json({ 
+        error: 'Failed to delete note',
+        requestedId: id 
+      });
+    }
+  
+    console.log(`Note ${id} deleted successfully`);
+    
+    return response.status(204).end();
+  });
 
 const PORT = 3001;
 app.listen(PORT, () => {
