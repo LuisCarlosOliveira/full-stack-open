@@ -50,17 +50,33 @@ app.get("/api/persons", (request, response) => {
 });
 
 app.get("/info", (request, response) => {
-    try {
-      const requestTime = new Date();
-      return response.send(`
+  try {
+    if (!persons || !Array.isArray(persons)) {
+      return response.status(500).send(`
+          <h1>Error</h1>
+          <p>Data source is not available</p>
+        `);
+    }
+
+    const requestTime = new Date().toLocaleString("en-US", {
+      dateStyle: "full",
+      timeStyle: "long",
+    });
+
+    console.log(`GET /info - Request received at ${requestTime}`);
+
+    return response.send(`
         <p>Phonebook has info for ${persons.length} people</p>
         <p>${requestTime}</p>
       `);
-    } catch (error) {
-      console.error('Error in info route:', error);
-      return response.status(500).send('Internal Server Error');
-    }
-  });
+  } catch (error) {
+    console.error("Error serving info page:", error);
+    return response.status(500).send(`
+      <h1>Error</h1>
+      <p>Internal server error occurred</p>
+    `);
+  }
+});
 
 const PORT = 3001;
 app.listen(PORT, () => {
