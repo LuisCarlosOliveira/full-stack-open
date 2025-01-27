@@ -78,6 +78,36 @@ app.get("/info", (request, response) => {
   }
 });
 
+app.get("/api/persons/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return response.status(400).json({
+        error: "Missing person id",
+      });
+    }
+
+    const person = persons.find((person) => person.id === id);
+
+    if (!person) {
+      return res.status(404).json({
+        error: "Person not found",
+        requestedId: id,
+      });
+    }
+
+    console.log(`GET /api/persons/${id} - Person found`);
+
+    return res.json(person);
+  } catch (error) {
+    console.error("Error fetching person:", error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Express Server running at: http://localhost:${PORT}`);
