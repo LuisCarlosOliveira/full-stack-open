@@ -26,8 +26,27 @@ let persons = [
   },
 ];
 
-app.get("/api/persons", (req, res) => {
-  res.json(persons);
+app.get("/api/persons", (request, response) => {
+  try {
+    if (!persons || !Array.isArray(persons)) {
+      return response.status(500).json({
+        error: "Data source is not available",
+      });
+    }
+
+    console.log(`GET /api/persons - Fetching ${persons.length} records`);
+
+    return response.status(200).json({
+      success: true,
+      data: persons,
+      total: persons.length,
+    });
+  } catch (error) {
+    console.error("Error fetching persons:", error);
+    return response.status(500).json({
+      error: "Internal server error",
+    });
+  }
 });
 
 const PORT = 3001;
