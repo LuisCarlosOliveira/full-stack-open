@@ -49,6 +49,19 @@ app.get("/api/persons", (request, response) => {
   }
 });
 
+app.get("/info", (request, response) => {
+    try {
+      const requestTime = new Date();
+      return response.send(`
+        <p>Phonebook has info for ${persons.length} people</p>
+        <p>${requestTime}</p>
+      `);
+    } catch (error) {
+      console.error('Error in info route:', error);
+      return response.status(500).send('Internal Server Error');
+    }
+  });
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Express Server running at: http://localhost:${PORT}`);
