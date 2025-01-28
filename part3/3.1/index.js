@@ -158,6 +158,72 @@ app.delete("/api/persons/:id", (req, res) => {
   }
 });
 
+const generateId = () => {
+  const min = 1;
+  const max = 9999999;
+
+  let newId;
+  do {
+    newId = Math.floor(Math.random() * (max - min) + min).toString();
+  } while (persons.some((p) => p.id === newId));
+
+  return newId;
+};
+
+const validatePerson = (person) => {
+  const { name, number } = person;
+
+  if (!name) {
+    throw new Error("name missing");
+  }
+  if (typeof name !== "string") {
+    throw new Error("name must be text");
+  }
+  if (!number) {
+    throw new Error("number missing");
+  }
+  if (typeof number !== "string") {
+    throw new Error("number must be text");
+  }
+  if (persons.find((p) => p.number === number)) {
+    throw new Error("number must be unique");
+  }
+  if (persons.find((p) => p.name === name)) {
+    throw new Error("name must be unique");
+  }
+};
+
+app.post("/api/persons", (req, res) => {
+  try {
+    const { name, number } = req.body;
+
+    validatePerson({ name, number });
+
+    const person = {
+      name: name.trim(),
+      number: number.trim(),
+      id: generateId(),
+    };
+
+    persons = persons.concat(person);
+    console.log({
+        event: 'person_created',
+        personId: person.id,
+        timestamp: new Date().toISOString()
+      });
+    return res.status(201).json(person);
+  } catch (error) {
+    console.error('Error creating person:', {
+        error: error.message,
+        body: request.body,
+        timestamp: new Date().toISOString()
+      });
+    return res.status(500).json({
+      error: "something went wrong",
+    });
+  }
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Express Server running at: http://localhost:${PORT}`);
