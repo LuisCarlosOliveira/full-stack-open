@@ -78,6 +78,12 @@ app.delete("/api/notes/:id", (request, response) => {
   return response.status(204).end();
 });
 
+const generateId = () => {
+  const maxId =
+    notes.length > 0 ? Math.max(...notes.map((n) => Number(n.id))) : 0;
+  return String(maxId + 1);
+};
+
 app.post("/api/notes", (request, response) => {
   try {
     const { content, important = false } = request.body;
@@ -100,17 +106,15 @@ app.post("/api/notes", (request, response) => {
       });
     }
 
-    const newNote = {
-      id: (notes.length + 1).toString(),
+    const note = {
       content: content.trim(),
       important,
+      id: generateId(),
     };
 
-    notes = notes.concat(newNote);
-
-    console.log("Note created:", newNote);
-
-    return response.status(201).json(newNote);
+    notes = notes.concat(note);
+    console.log("Note created:", note);
+    return response.status(201).json(note);
   } catch (error) {
     console.error("Error:", error);
     return response.status(500).json({

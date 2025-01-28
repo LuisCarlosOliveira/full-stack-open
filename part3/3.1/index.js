@@ -108,6 +108,56 @@ app.get("/api/persons/:id", (req, res) => {
   }
 });
 
+app.delete("/api/persons/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return response.status(400).json({
+        error: "Missing person id",
+      });
+    }
+
+    const personToDelete = persons.find((person) => person.id === id);
+    if (!personToDelete) {
+      console.log(`DELETE attempt - Person ${id} not found`);
+      return res.status(404).json({
+        error: "Person not found",
+        requestedId: id,
+      });
+    }
+
+    const initialLength = persons.length;
+    persons = persons.filter((person) => person.id !== id);
+
+    if (persons.length === initialLength) {
+      console.error(`DELETE failed - Could not delete person ${id}`);
+      return res.status(500).json({
+        error: "Failed to delete person",
+        requestedId: id,
+      });
+    }
+    console.log({
+      event: "person_deleted",
+      personId: id,
+      timestamp: new Date().toISOString(),
+      remainingPersons: persons.length,
+    });
+
+    return res.status(204).end();
+  } catch (error) {
+    console.error("Error during person deletion:", {
+      error: error.message,
+      personId: request.params.id,
+      stack: error.stack,
+    });
+
+    return response.status(500).json({
+      error: "Internal server error",
+    });
+  }
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Express Server running at: http://localhost:${PORT}`);
