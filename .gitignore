@@ -13,6 +13,7 @@ Thumbs.db
 # Configurações locais
 .env
 nodemon.json
+fly.toml
 
 # Compilados/Builds
 dist/
