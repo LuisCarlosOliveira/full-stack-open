@@ -10,6 +10,8 @@ app.use(cors({
 }));
 */
 
+app.use(express.static('dist'));
+
 app.use(express.json());
 
 const requestLogger = (request, response, next) => {
@@ -39,9 +41,11 @@ let notes = [
   },
 ];
 
+/*
 app.get("/", (request, response) => {
   response.send("<h1> Hello World! </h1>");
 });
+*/
 
 app.get("/api/notes", (request, response) => {
   response.json(notes);
@@ -141,12 +145,36 @@ app.post("/api/notes", (request, response) => {
   }
 });
 
+app.put("/api/notes/:id", (request, response) => {
+  const { id } = request.params;
+  const { content, important } = request.body;
+
+  const noteIndex = notes.findIndex((note) => note.id === id);
+
+  if (noteIndex === -1) {
+    return response.status(404).json({
+      error: "Note not found",
+      requestedId: id,
+    });
+  }
+
+  const updatedNote = {
+    ...notes[noteIndex],
+    content: content || notes[noteIndex].content,
+    important: important !== undefined ? important : notes[noteIndex].important,
+  };
+
+  notes[noteIndex] = updatedNote;
+
+  return response.json(updatedNote);
+});
+
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 app.use(unknownEndpoint);
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Express Server running at: http://localhost:${PORT}`);
 });
