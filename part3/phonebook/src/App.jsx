@@ -1,28 +1,32 @@
-import { useState, useEffect } from 'react';
-import personService from './services/PersonService';
-import './App.css'
+import { useState, useEffect } from "react";
+import { getAll } from "./services/PersonService"; // Importação nomeada
+import Person from "./components/Person";
+import "./App.css";
 
 function App() {
   const [persons, setPersons] = useState([]);
-  
+
   useEffect(() => {
-    personService.getAll().then(initialPersons => {
-      setPersons(initialPersons);
-    });
+    getAll()
+      .then((initialPersons) => {
+        setPersons(initialPersons);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch persons:", error);
+        alert("Failed to load data. Please try again later.");
+      });
   }, []);
 
   return (
     <>
       <h1>Phonebook</h1>
       <ul>
-        {persons.map(person => 
-          <li key={person.id}>
-            {person.name} - {person.number}
-          </li>
-        )}
+        {persons.map((person) => (
+          <Person key={person.id} person={person} />
+        ))}
       </ul>
     </>
-  )
+  );
 }
 
 export default App;

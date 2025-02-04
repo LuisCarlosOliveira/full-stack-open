@@ -1,10 +1,11 @@
 import apiPerson from '../apis/apiPerson';
 
-const getAll = async () => {
-    const response = await apiPerson.get("/persons"); 
-    return response.data.data;
-}
-
-export default { 
-    getAll
-};
+export const getAll = async () => {
+    try {
+      const response = await apiPerson.get("/persons");
+      return response.data.data; 
+    } catch (error) {
+      console.error("Error fetching persons:", error);
+      throw error; 
+    }
+  };
