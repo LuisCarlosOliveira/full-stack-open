@@ -1,17 +1,18 @@
 const express = require("express");
 const app = express();
-const cors = require('cors'); 
-var morgan = require('morgan')
+const cors = require("cors");
+var morgan = require("morgan");
 
 app.use(cors());
-
 
 app.use(express.json());
 
 //app.use(morgan('tiny'));
-morgan.token('body', (req) => JSON.stringify(req.body));
+morgan.token("body", (req) => JSON.stringify(req.body));
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 let persons = [
   {
@@ -217,17 +218,17 @@ app.post("/api/persons", (req, res) => {
 
     persons = persons.concat(person);
     console.log({
-        event: 'person_created',
-        personId: person.id,
-        timestamp: new Date().toISOString()
-      });
+      event: "person_created",
+      personId: person.id,
+      timestamp: new Date().toISOString(),
+    });
     return res.status(201).json(person);
   } catch (error) {
-    console.error('Error creating person:', {
-        error: error.message,
-        body: request.body,
-        timestamp: new Date().toISOString()
-      });
+    console.error("Error creating person:", {
+      error: error.message,
+      body: request.body,
+      timestamp: new Date().toISOString(),
+    });
     return res.status(500).json({
       error: "something went wrong",
     });
@@ -235,9 +236,9 @@ app.post("/api/persons", (req, res) => {
 });
 
 const unknownEndpoint = (req, res) => {
-    res.status(404).send({ error: 'unknown endpoint' });
-  };
-  app.use(unknownEndpoint);
+  res.status(404).send({ error: "unknown endpoint" });
+};
+app.use(unknownEndpoint);
 
 const PORT = 3001;
 app.listen(PORT, () => {
