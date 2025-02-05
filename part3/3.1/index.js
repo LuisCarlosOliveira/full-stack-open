@@ -124,7 +124,7 @@ app.delete("/api/persons/:id", (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return response.status(400).json({
+      return res.status(400).json({
         error: "Missing person id",
       });
     }
@@ -159,11 +159,11 @@ app.delete("/api/persons/:id", (req, res) => {
   } catch (error) {
     console.error("Error during person deletion:", {
       error: error.message,
-      personId: request.params.id,
+      personId: req.params.id,
       stack: error.stack,
     });
 
-    return response.status(500).json({
+    return res.status(500).json({
       error: "Internal server error",
     });
   }

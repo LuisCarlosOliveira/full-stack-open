@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAll, create } from "./services/PersonService";
+import { getAll, create, deletePerson } from "./services/PersonService";
 import Person from "./components/Person";
 import "./App.css";
 
@@ -51,12 +51,26 @@ function App() {
     setnewNumber(event.target.value);
   };
 
+  const handleDeletePerson = (id) => {
+    deletePerson(id)
+      .then(() => {
+        setPersons(persons.filter((person) => person.id !== id));
+      })
+      .catch((error) => {
+        console.error("Error deleting person:", error);
+        alert("Failed to delete person. Please try again.");
+      });
+  };
+
   return (
     <>
       <h1>Phonebook</h1>
       <ul>
         {persons.map((person) => (
-          <Person key={person.id} person={person} />
+          <li key={person.id}>
+            <Person person={person} />
+            <button onClick={() => handleDeletePerson(person.id)}>Delete</button>
+          </li>
         ))}
       </ul>
       <form onSubmit={addPerson}>

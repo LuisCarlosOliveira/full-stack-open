@@ -18,3 +18,13 @@ export const create = async (newPerson) => {
     throw error;
     }
 };
+
+export const deletePerson = async (personIDToDelete) => {
+  try {
+    const response = await apiPerson.delete(`/persons/${personIDToDelete}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting person:", error);
+    throw error;
+  }
+};
