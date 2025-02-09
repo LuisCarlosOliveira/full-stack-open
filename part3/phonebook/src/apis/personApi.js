@@ -2,12 +2,12 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:3001/api";
 
-const apiPerson = axios.create({
+const personApi = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
 });
 
-apiPerson.interceptors.response.use(
+personApi.interceptors.response.use(
   (response) => response,
   (error) => {
     const errorMessage =
@@ -17,4 +17,4 @@ apiPerson.interceptors.response.use(
   }
 );
 
-export default apiPerson;
+export default personApi;
