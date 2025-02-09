@@ -235,6 +235,80 @@ app.post("/api/persons", (req, res) => {
   }
 });
 
+app.put("/api/persons/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, number } = req.body;
+
+    // Validação básica
+    if (!name && !number) {
+      return res.status(400).json({
+        error: "At least one field (name or number) must be provided"
+      });
+    }
+
+    const personIndex = persons.findIndex((person) => person.id === id);
+
+    if (personIndex === -1) {
+      console.log(`PUT attempt - Person ${id} not found`);
+      return res.status(404).json({
+        error: "Person not found",
+        requestedId: id
+      });
+    }
+
+    /*
+    if (name) {
+      const nameExists = persons.some(p => p.name === name && p.id !== id);
+      if (nameExists) {
+        return res.status(400).json({
+          error: "name must be unique"
+        });
+      }
+    }
+    */
+
+    if (number) {
+      const numberExists = persons.some(p => p.number === number && p.id !== id);
+      if (numberExists) {
+        return res.status(400).json({
+          error: "number must be unique"
+        });
+      }
+    }
+
+    const updatedPerson = {
+      ...persons[personIndex],
+      name: name?.trim() || persons[personIndex].name,
+      number: number?.trim() || persons[personIndex].number,
+    };
+
+    persons[personIndex] = updatedPerson;
+
+    console.log({
+      event: "person_updated",
+      personId: id,
+      timestamp: new Date().toISOString(),
+      fieldsUpdated: {
+        name: !!name,
+        number: !!number
+      }
+    });
+
+    return res.json(updatedPerson);
+  } catch (error) {
+    console.error("Error during person updating:", {
+      error: error.message,
+      personId: req.params.id,
+      stack: error.stack,
+    });
+
+    return res.status(500).json({
+      error: "Internal server error"
+    });
+  }
+});
+
 const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: "unknown endpoint" });
 };
