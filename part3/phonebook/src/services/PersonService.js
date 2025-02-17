@@ -39,6 +39,20 @@ export const deletePerson = async (personIDToDelete) => {
   }
 };
 
+export const getPerson = async (personIDToGet) => {
+  try{
+    if(!personIDToGet) {
+      throw new Error("Person ID is required");
+    }
+
+    const response = await personApi.get(`/persons/${personIDToGet}`);
+    return response.data; 
+  }catch (error){
+    console.error("Error getting person:", error);
+    throw error;
+  }
+};
+
 export const updatePerson = async (personIDToUpdate, newObject) => {
   try {
     validatePersonUpdate(personIDToUpdate, newObject);
