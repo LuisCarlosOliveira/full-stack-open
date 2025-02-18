@@ -40,8 +40,14 @@ function App() {
   // Handle form submission for searching by ID
   const handleSubmitToGetByID = async (event) => {
     event.preventDefault();
+    if (!personId.trim()) {
+      setError("Please enter an ID");
+      setPerson(null);
+      return;
+    }
+
     try {
-      const returnedPerson = await PersonService.getById(personId.trim()); // ✅ Passamos só o ID
+      const returnedPerson = await PersonService.getById(personId.trim());
       setPerson(returnedPerson);
       setError(null);
     } catch (error) {
@@ -49,6 +55,13 @@ function App() {
       setError(error.message || "Failed to get person. Please try again.");
       setPerson(null);
     }
+  };
+
+  // Add a clear button
+  const handleClearSearch = () => {
+    setPersonId("");
+    setPerson(null);
+    setError(null);
   };
 
   // Handle form submission for adding a new person
@@ -152,41 +165,60 @@ function App() {
           </li>
         ))}
       </ul>
-      <form onSubmit={handleSubmitToGetByID} className="mb-6">
+
+      <form
+        onSubmit={handleSubmitToGetByID}
+        className="mb-6 mt-8 border-t pt-6"
+      >
+        <h2 className="text-xl font-bold mb-4">Search Person by ID</h2>
         <div className="mb-4">
           <label htmlFor="personId" className="block mb-2">
-            Buscar Pessoa por ID:
+            Person ID:
           </label>
-          <input
-            id="personId"
-            name="personId"
-            type="text"
-            value={personId}
-            onChange={(e) => setPersonId(e.target.value)} // ✅ Atualiza o estado com o ID digitado
-            className="border rounded px-2 py-1 w-full"
-            required
-          />
+          <div className="flex gap-2">
+            <input
+              id="personId"
+              name="personId"
+              type="text"
+              value={personId}
+              onChange={(e) => setPersonId(e.target.value)}
+              className="border rounded px-2 py-1 flex-1"
+              placeholder="Enter person ID"
+              required
+            />
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Search
+            </button>
+          </div>
         </div>
-        <button
-          type="submit"
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          Buscar Pessoa
-        </button>
       </form>
 
       {person && (
-        <div className="mt-4 p-4 border rounded bg-gray-100">
-          <h2 className="text-xl font-bold">Detalhes da Pessoa</h2>
-          <p>
-            <strong>ID:</strong> {person.id}
-          </p>
-          <p>
-            <strong>Nome:</strong> {person.name}
-          </p>
-          <p>
-            <strong>Número:</strong> {person.number}
-          </p>
+        <div className="mt-4 space-y-4">
+          <div className="p-4 border rounded bg-gray-100">
+            <h2 className="text-xl font-bold mb-3">Person Details</h2>
+            <div className="space-y-2">
+              <p className="grid grid-cols-[100px_1fr]">
+                <strong>ID:</strong> <span>{person.id}</span>
+              </p>
+              <p className="grid grid-cols-[100px_1fr]">
+                <strong>Name:</strong> <span>{person.name}</span>
+              </p>
+              <p className="grid grid-cols-[100px_1fr]">
+                <strong>Number:</strong> <span>{person.number}</span>
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleClearSearch}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 w-full"
+          >
+            Clear Search Results
+          </button>
         </div>
       )}
     </div>
