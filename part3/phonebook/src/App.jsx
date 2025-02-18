@@ -7,9 +7,11 @@ function App() {
   const [persons, setPersons] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
-    number: ""
+    number: "",
   });
   const [error, setError] = useState(null);
+  const [personId, setPersonId] = useState("");
+  const [person, setPerson] = useState(null);
 
   // Fetch persons on component mount
   useEffect(() => {
@@ -29,23 +31,37 @@ function App() {
   // Handle form input changes
   const handleInputChange = useCallback((event) => {
     const { name, value } = event.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   }, []);
 
-  // Handle form submission
+  // Handle form submission for searching by ID
+  const handleSubmitToGetByID = async (event) => {
+    event.preventDefault();
+    try {
+      const returnedPerson = await PersonService.getById(personId.trim()); // ✅ Passamos só o ID
+      setPerson(returnedPerson);
+      setError(null);
+    } catch (error) {
+      console.error("Error getting person:", error);
+      setError(error.message || "Failed to get person. Please try again.");
+      setPerson(null);
+    }
+  };
+
+  // Handle form submission for adding a new person
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
     try {
       const returnedPerson = await PersonService.create({
         name: formData.name.trim(),
-        number: formData.number.trim()
+        number: formData.number.trim(),
       });
 
-      setPersons(prev => [...prev, returnedPerson]);
+      setPersons((prev) => [...prev, returnedPerson]);
       setFormData({ name: "", number: "" });
       setError(null);
     } catch (error) {
@@ -62,7 +78,7 @@ function App() {
 
     try {
       await PersonService.delete(id);
-      setPersons(prev => prev.filter(person => person.id !== id));
+      setPersons((prev) => prev.filter((person) => person.id !== id));
       setError(null);
     } catch (error) {
       console.error("Error deleting person:", error);
@@ -75,14 +91,19 @@ function App() {
       <h1 className="text-2xl font-bold mb-4">Phonebook</h1>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+          role="alert"
+        >
           <p>{error}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="mb-4">
-          <label htmlFor="name" className="block mb-2">Name:</label>
+          <label htmlFor="name" className="block mb-2">
+            Name:
+          </label>
           <input
             id="name"
             name="name"
@@ -94,7 +115,9 @@ function App() {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="number" className="block mb-2">Number:</label>
+          <label htmlFor="number" className="block mb-2">
+            Number:
+          </label>
           <input
             id="number"
             name="number"
@@ -105,8 +128,8 @@ function App() {
             required
           />
         </div>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           Save
@@ -114,8 +137,11 @@ function App() {
       </form>
 
       <ul className="space-y-2">
-        {persons.map(person => (
-          <li key={person.id} className="flex items-center justify-between p-2 border rounded">
+        {persons.map((person) => (
+          <li
+            key={person.id}
+            className="flex items-center justify-between p-2 border rounded"
+          >
             <Person person={person} />
             <button
               onClick={() => handleDelete(person.id)}
@@ -126,6 +152,43 @@ function App() {
           </li>
         ))}
       </ul>
+      <form onSubmit={handleSubmitToGetByID} className="mb-6">
+        <div className="mb-4">
+          <label htmlFor="personId" className="block mb-2">
+            Buscar Pessoa por ID:
+          </label>
+          <input
+            id="personId"
+            name="personId"
+            type="text"
+            value={personId}
+            onChange={(e) => setPersonId(e.target.value)} // ✅ Atualiza o estado com o ID digitado
+            className="border rounded px-2 py-1 w-full"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          Buscar Pessoa
+        </button>
+      </form>
+
+      {person && (
+        <div className="mt-4 p-4 border rounded bg-gray-100">
+          <h2 className="text-xl font-bold">Detalhes da Pessoa</h2>
+          <p>
+            <strong>ID:</strong> {person.id}
+          </p>
+          <p>
+            <strong>Nome:</strong> {person.name}
+          </p>
+          <p>
+            <strong>Número:</strong> {person.number}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
