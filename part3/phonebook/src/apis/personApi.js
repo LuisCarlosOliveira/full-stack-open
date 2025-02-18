@@ -13,7 +13,7 @@ personApi.interceptors.response.use(
     const errorMessage =
       error.response?.data?.error || "Communication error with the server";
     console.error(`Error in the API: ${errorMessage}`);
-    return Promise.reject(errorMessage);
+    return Promise.reject(error);
   }
 );
 

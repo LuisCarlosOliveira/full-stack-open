@@ -1,81 +1,92 @@
 import personApi from "../apis/personApi";
-import { validatePersonUpdate  } from "../validators/personUpdate";
+import validatePersonUpdate from "../validators/personUpdate";
+import { handleApiError } from "../utils/handleApiError"; 
 
-export const getAll = async () => {
-  try {
-    const response = await personApi.get("/persons");
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching persons:", error);
-    throw error;
-  }
-};
+const PersonService = {
 
-export const create = async (newPerson) => {
-  try {
-    if (!newPerson?.name || !newPerson?.number) {
-      throw new Error("Name and number are required");
+  getAll: async () => {
+    try {
+      const response = await personApi.get("/persons");
+      return response.data.data;
+    } catch (error) {
+      console.error("Error fetching persons:", error);
+      throw handleApiError(error, "Failed to fetch persons");
     }
+  },
 
-    const response = await personApi.post("/persons", newPerson);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating person:", error);
-    throw error;
-  }
-};
+  create: async (newPerson) => {
+    try {
+      if (!newPerson?.name) {
+        throw new Error("name missing");
+      }
+      if (!newPerson?.number) {
+        throw new Error("number missing");
+      }
 
-export const deletePerson = async (personIDToDelete) => {
-  try {
-    if (!personIDToDelete) {
-      throw new Error("Person ID is required");
+      const response = await personApi.post("/persons", {
+        name: newPerson.name.trim(),
+        number: newPerson.number.trim()
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error creating person:", error);
+      throw handleApiError(error, "Failed to create person");
     }
+  },
 
-    const response = await personApi.delete(`/persons/${personIDToDelete}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error deleting person:", error);
-    throw error;
-  }
-};
+  delete: async (personId) => {
+    try {
+      if (!personId) {
+        throw new Error("Missing person id");
+      }
 
-export const getPerson = async (personIDToGet) => {
-  try{
-    if(!personIDToGet) {
-      throw new Error("Person ID is required");
+      await personApi.delete(`/persons/${personId}`);
+      // No return value needed as server returns 204 No Content
+    } catch (error) {
+      console.error("Error deleting person:", error);
+      throw handleApiError(error, "Failed to delete person");
     }
+  },
 
-    const response = await personApi.get(`/persons/${personIDToGet}`);
-    return response.data; 
-  }catch (error){
-    console.error("Error getting person:", error);
-    throw error;
+  getById: async (personId) => {
+    try {
+      if (!personId) {
+        throw new Error("Missing person id");
+      }
+
+      const response = await personApi.get(`/persons/${personId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching person:", error);
+      throw handleApiError(error, "Failed to fetch person");
+    }
+  },
+
+  update: async (personId, updateData) => {
+    try {
+      validatePersonUpdate(personId, updateData);
+
+      const trimmedData = {
+        ...(updateData.name?.trim() && { name: updateData.name.trim() }),
+        ...(updateData.number?.trim() && { number: updateData.number.trim() })
+      };
+
+      if (Object.keys(trimmedData).length === 0) {
+        throw new Error("At least one field (name or number) must be provided");
+      }
+
+      const response = await personApi.put(`/persons/${personId}`, trimmedData);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating person:", {
+        id: personId,
+        data: updateData,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+      throw handleApiError(error, "Failed to update person");
+    }
   }
 };
 
-export const updatePerson = async (personIDToUpdate, newObject) => {
-  try {
-    validatePersonUpdate(personIDToUpdate, newObject);
-
-    const updateData = {
-      ...(newObject.name?.trim() && { name: newObject.name.trim() }),
-      ...(newObject.number?.trim() && { number: newObject.number.trim() })
-    };
-
-    const response = await personApi.put(
-      `/persons/${personIDToUpdate}`, 
-      updateData
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error("Error updating person:", {
-      id: personIDToUpdate,
-      data: newObject,
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
-
-    throw error;
-  }
-};
+export default PersonService;
