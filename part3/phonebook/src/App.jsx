@@ -60,7 +60,7 @@ function App() {
     }
   };
   */
- 
+
   const handleSearch = async (event) => {
     event.preventDefault();
     if (!searchValue.trim()) {

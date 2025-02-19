@@ -5,6 +5,8 @@ var morgan = require("morgan");
 
 app.use(cors());
 
+app.use(express.static("dist"));
+
 app.use(express.json());
 
 //app.use(morgan('tiny'));
@@ -349,11 +351,11 @@ app.put("/api/persons/:id", (req, res) => {
 });
 
 const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: "unknown endpoint" });
+  res.status(404).send({ error: "unknown endpoint!" });
 };
 app.use(unknownEndpoint);
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Express Server running at: http://localhost:${PORT}`);
 });
