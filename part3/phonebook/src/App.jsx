@@ -10,8 +10,10 @@ function App() {
     number: "",
   });
   const [error, setError] = useState(null);
-  const [personId, setPersonId] = useState("");
+  //const [personId, setPersonId] = useState("");
   const [person, setPerson] = useState(null);
+  const [searchType, setSearchType] = useState("id");
+  const [searchValue, setSearchValue] = useState("");
 
   // Fetch persons on component mount
   useEffect(() => {
@@ -37,6 +39,7 @@ function App() {
     }));
   }, []);
 
+  /*
   // Handle form submission for searching by ID
   const handleSubmitToGetByID = async (event) => {
     event.preventDefault();
@@ -56,10 +59,33 @@ function App() {
       setPerson(null);
     }
   };
+  */
+ 
+  const handleSearch = async (event) => {
+    event.preventDefault();
+    if (!searchValue.trim()) {
+      setError(`Please enter a ${searchType}`);
+      setPerson(null);
+      return;
+    }
+
+    try {
+      const searchParams = {
+        [searchType]: searchValue.trim(),
+      };
+      const returnedPerson = await PersonService.searchPerson(searchParams);
+      setPerson(returnedPerson);
+      setError(null);
+    } catch (error) {
+      console.error("Error searching person:", error);
+      setError(error.message || "Person not found. Please try again.");
+      setPerson(null);
+    }
+  };
 
   // Add a clear button
   const handleClearSearch = () => {
-    setPersonId("");
+    setSearchValue("");
     setPerson(null);
     setError(null);
   };
@@ -166,24 +192,25 @@ function App() {
         ))}
       </ul>
 
-      <form
-        onSubmit={handleSubmitToGetByID}
-        className="mb-6 mt-8 border-t pt-6"
-      >
-        <h2 className="text-xl font-bold mb-4">Search Person by ID</h2>
+      <form onSubmit={handleSearch} className="mb-6 mt-8 border-t pt-6">
+        <h2 className="text-xl font-bold mb-4">Search Person</h2>
         <div className="mb-4">
-          <label htmlFor="personId" className="block mb-2">
-            Person ID:
-          </label>
-          <div className="flex gap-2">
+          <div className="flex gap-4 mb-4">
+            <select
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value)}
+              className="border rounded px-2 py-1"
+            >
+              <option value="id">By ID</option>
+              <option value="name">By Name</option>
+              <option value="number">By Number</option>
+            </select>
             <input
-              id="personId"
-              name="personId"
               type="text"
-              value={personId}
-              onChange={(e) => setPersonId(e.target.value)}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
               className="border rounded px-2 py-1 flex-1"
-              placeholder="Enter person ID"
+              placeholder={`Enter person ${searchType}`}
               required
             />
             <button

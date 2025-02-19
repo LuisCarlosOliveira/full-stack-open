@@ -79,7 +79,7 @@ const PersonService = {
 
     }catch (error) {
       console.error("Error fetching person:", error);
-      throw handleApiError(error, "Failed to fetch person");
+      throw handleApiError(error, "Failed to search for person"); 
     }
   },
 
