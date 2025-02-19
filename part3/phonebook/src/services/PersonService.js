@@ -62,6 +62,27 @@ const PersonService = {
     }
   },
 
+  searchPerson: async (searchParams) => {
+    try{
+      if (!searchParams) {
+        throw new Error("Missing parameters");
+      }
+      const { id, name, number } = searchParams;
+
+      const params = new URLSearchParams();
+      if (id) params.append('id', id);
+      if (name) params.append('name', name);
+      if (number) params.append('number', number);
+
+      const response = await personApi.get(`/persons/search?${params}`);
+      return response.data;
+
+    }catch (error) {
+      console.error("Error fetching person:", error);
+      throw handleApiError(error, "Failed to fetch person");
+    }
+  },
+
   update: async (personId, updateData) => {
     try {
       validatePersonUpdate(personId, updateData);

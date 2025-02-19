@@ -89,12 +89,51 @@ app.get("/info", (request, response) => {
   }
 });
 
+app.get("/api/persons/search", (req, res) => {
+  try {
+    const { id, name, number } = req.query;
+
+    // Se nenhum parâmetro foi fornecido
+    if (!id && !name && !number) {
+      return res.status(400).json({
+        error: "At least one search parameter (id, name, or number) must be provided"
+      });
+    }
+
+    let person;
+    
+    if (id) {
+      person = persons.find(p => p.id === id);
+    } else if (name) {
+      person = persons.find(p => p.name.toLowerCase() === name.toLowerCase());
+    } else if (number) {
+      person = persons.find(p => p.number === number);
+    }
+
+    if (!person) {
+      return res.status(404).json({
+        error: "Person not found",
+        searchParams: { id, name, number }
+      });
+    }
+
+    console.log(`GET /api/persons/search - Person found with params:`, { id, name, number });
+
+    return res.json(person);
+  } catch (error) {
+    console.error("Error searching person:", error);
+    return res.status(500).json({
+      error: "Internal server error"
+    });
+  }
+});
+
 app.get("/api/persons/:id", (req, res) => {
   try {
     const { id } = req.params;
 
     if (!id) {
-      return response.status(400).json({
+      return res.status(400).json({
         error: "Missing person id",
       });
     }
