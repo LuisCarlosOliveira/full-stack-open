@@ -128,8 +128,7 @@ const handleDatabaseError = (error, res, operation = "operation") => {
   });
 };
 
-// ROUTES - ORDEM MUITO IMPORTANTE!
-// Rotas específicas devem vir ANTES de rotas com parâmetros
+// Specific routes must come BEFORE routes with parameters"
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
