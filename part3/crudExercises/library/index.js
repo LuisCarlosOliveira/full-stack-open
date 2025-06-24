@@ -222,6 +222,102 @@ app.get("/api/books", async (req, res) => {
   }
 });
 
+//GET /api/books/:id - Get book by id
+app.get("/api/book/:id", async (req, res) => {
+  try {
+    console.log(`Getting book by ID: ${req.params.id}`);
+    const { id } = req.params;
+    const book = await Book.findById(id);
+
+    if (!book) {
+      return res.status(404).json({
+        error: `Book ${req.params.id} not found`,
+      });
+    }
+
+    res.json(book);
+  } catch {
+    handleDatabaseError(error, res, "fetch book");
+  }
+});
+
+// PUT /api/book/:id - Update book
+app.put("/api/book/:id", async (req, res) => {
+  try {
+    console.log(`Updating book: ${req.params.id}`);
+    const { id } = req.params;
+    const { title, author, isbn, publishedYear, genre } = req.body;
+
+    // Build update object with only provided fields
+    const updatedData = {};
+    if (title && title.trim()) {
+      updatedData.title = title.trim();
+    }
+    if (author && author.trim()) {
+      updatedData.author = author.trim();
+    }
+    if (publishedYear) {
+      updatedData.publishedYear = publishedYear;
+    }
+    if (genre && genre.trim()) {
+      updatedData.genre = genre.trim();
+    }
+    if (isbn && isbn.trim()) {
+      updatedData.isbn = isbn.trim();
+    }
+
+    if (updatedData.isbn) {
+      const existingBook = await Book.findOne({
+        isbn: updatedData.isbn,
+        _id: { $ne: id },
+      });
+
+      if (existingBook) {
+        return res.status(400).json({
+          error: "Book ISBN already exists in the library",
+        });
+      }
+    }
+
+    const updatedBook = await Book.findByIdAndUpdate(id, updatedData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedBook) {
+      return res.status(404).json({
+        error: "Person not found",
+      });
+    }
+    console.log("✅ Book updated successfully");
+
+    res.json(updatedBook); //to pass to frontend
+  } catch (error) {
+    handleDatabaseError(error, res, "update book");
+  }
+});
+
+// DELETE /api/book/:id - Delete book
+app.delete("/api/book/:id", async (req, res) => {
+  try {
+    console.log(`Deleting book: ${req.params.id}`);
+
+    const { id } = req.params;
+
+    const deletedBook = await Book.findByIdAndDelete(id);
+
+    if (!deletedBook) {
+      return res.status(404).json({
+        error: "Book not found",
+      });
+    }
+    console.log("Book deleted successfully");
+    res.status(204).end();
+  } catch (error) {
+    handleDatabaseError(error, res, "delete book");
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 3001;
 
