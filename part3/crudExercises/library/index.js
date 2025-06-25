@@ -222,42 +222,54 @@ app.get("/api/books", async (req, res) => {
   }
 });
 
-//GET /api/books/:id - Get book by id
-app.get("/api/book/:id", async (req, res) => {
+//GET /api/book/:id - Get book by id - CORRIGIDO
+app.get("/api/book/:id", validateObjectId, async (req, res) => {
   try {
-    console.log(`Getting book by ID: ${req.params.id}`);
+    console.log(`📖 Getting book by ID: ${req.params.id}`);
     const { id } = req.params;
     const book = await Book.findById(id);
 
     if (!book) {
       return res.status(404).json({
+        success: false,
         error: `Book ${req.params.id} not found`,
       });
     }
 
-    res.json(book);
-  } catch {
+    res.json({
+      success: true,
+      data: book,
+      message: "Book found successfully"
+    });
+  } catch (error) { // CORRIGIDO: adicionado parâmetro 'error'
     handleDatabaseError(error, res, "fetch book");
   }
 });
 
-// PUT /api/book/:id - Update book
-app.put("/api/book/:id", async (req, res) => {
+// PUT /api/book/:id - Update book - CORRIGIDO
+app.put("/api/book/:id", validateObjectId, async (req, res) => {
   try {
-    console.log(`Updating book: ${req.params.id}`);
+    console.log(`✏️ Updating book: ${req.params.id}`);
     const { id } = req.params;
-    const { title, author, isbn, publishedYear, genre } = req.body;
+    const { name, author, isbn, publishedYear, genre } = req.body; // CORRIGIDO: 'name' em vez de 'title'
 
     // Build update object with only provided fields
     const updatedData = {};
-    if (title && title.trim()) {
-      updatedData.title = title.trim();
+    if (name && name.trim()) {
+      updatedData.name = name.trim(); // CORRIGIDO: 'name' em vez de 'title'
     }
     if (author && author.trim()) {
       updatedData.author = author.trim();
     }
     if (publishedYear) {
-      updatedData.publishedYear = publishedYear;
+      const parsedYear = parseInt(publishedYear, 10);
+      if (isNaN(parsedYear)) {
+        return res.status(400).json({
+          success: false,
+          error: "Published year must be a valid number",
+        });
+      }
+      updatedData.publishedYear = parsedYear;
     }
     if (genre && genre.trim()) {
       updatedData.genre = genre.trim();
@@ -266,15 +278,17 @@ app.put("/api/book/:id", async (req, res) => {
       updatedData.isbn = isbn.trim();
     }
 
+    // Check for duplicate ISBN if ISBN is being updated
     if (updatedData.isbn) {
       const existingBook = await Book.findOne({
         isbn: updatedData.isbn,
-        _id: { $ne: id },
+        _id: { $ne: id }, // MongoDB query: find book where _id is NOT EQUAL to current id
       });
 
       if (existingBook) {
-        return res.status(400).json({
-          error: "Book ISBN already exists in the library",
+        return res.status(409).json({
+          success: false,
+          error: "ISBN already exists in the library",
         });
       }
     }
@@ -286,32 +300,37 @@ app.put("/api/book/:id", async (req, res) => {
 
     if (!updatedBook) {
       return res.status(404).json({
-        error: "Person not found",
+        success: false,
+        error: "Book not found", // CORRIGIDO: "Book" em vez de "Person"
       });
     }
     console.log("✅ Book updated successfully");
 
-    res.json(updatedBook); //to pass to frontend
+    res.json({
+      success: true,
+      data: updatedBook,
+      message: "Book updated successfully"
+    });
   } catch (error) {
     handleDatabaseError(error, res, "update book");
   }
 });
 
 // DELETE /api/book/:id - Delete book
-app.delete("/api/book/:id", async (req, res) => {
+app.delete("/api/book/:id", validateObjectId, async (req, res) => {
   try {
-    console.log(`Deleting book: ${req.params.id}`);
-
+    console.log(`🗑️ Deleting book: ${req.params.id}`);
     const { id } = req.params;
 
     const deletedBook = await Book.findByIdAndDelete(id);
 
     if (!deletedBook) {
       return res.status(404).json({
+        success: false,
         error: "Book not found",
       });
     }
-    console.log("Book deleted successfully");
+    console.log("✅ Book deleted successfully");
     res.status(204).end();
   } catch (error) {
     handleDatabaseError(error, res, "delete book");
